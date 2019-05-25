@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[76]:
-
-
 def mysplit(mystr, max_seperators, *args):
     '''
     intype: string, list
@@ -42,53 +39,3 @@ def mysplit(mystr, max_seperators, *args):
     if (not cnt == len(mystr)):
         ret.append(mystr[cnt:])
     return ret
-
-
-# In[80]:
-
-
-mysplit('12：3:4: 56：78', 5, '')
-
-
-# In[12]:
-
-
-def foo(gooo):
-    def goo():
-        print(3)
-        gooo()
-    return goo
-
-
-# In[16]:
-
-
-@foo
-def time():
-    print(10)
-
-
-# In[61]:
-
-
-def match(substr, *args):
-        pass
-
-
-# In[41]:
-
-
-match('123456','1')
-
-
-# In[75]:
-
-
-len('：')
-
-
-# In[ ]:
-
-
-
-
