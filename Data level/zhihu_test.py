@@ -5,7 +5,6 @@ import json
 import requests
 import time
 from urllib.parse import unquote
-url = r'https://www.zhihu.com/api/v4/members/howard-h/followees?include=data[*].answer_count,articles_count,gender,follower_count,is_followed,is_following,badge[?(type=best_answerer)].topics&offset=10&limit=20'
 
 
 start_url_token = 'xxxxxxxxx'
