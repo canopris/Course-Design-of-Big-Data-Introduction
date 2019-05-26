@@ -1,19 +1,24 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
-
-# In[1]:
-
 
 import json
 import requests
 import time
 from urllib.parse import unquote
 url = r'https://www.zhihu.com/api/v4/members/howard-h/followees?include=data[*].answer_count,articles_count,gender,follower_count,is_followed,is_following,badge[?(type=best_answerer)].topics&offset=10&limit=20'
-#url = 'https://api.bilibili.com/x/web-interface/archive/stat?aid=40381004'
 
 
-# In[2]:
-
+start_url_token = 'xxxxxxxxx'
+max_depth       = 2
+vis = {}
+##重要说明
+##重要说明
+##重要说明
+'''
+start_url_token 是知乎用户的一个令牌
+max_depth 是关系网络的最大深度
+vis 是一个访问记录表0:从未访问过，1:正在访问没结束，2:已访问并结束
+'''
 
 myheaders = {
 'Host': 'www.zhihu.com',
@@ -26,24 +31,6 @@ myheaders = {
 'Cache-Control': 'max-age=0',
 'TE': 'Trailers'
 }
-
-
-# In[3]:
-
-
-sess = requests.session()
-sess.headers = myheaders
-sess.cookies.update(sess.cookies)
-r = sess.get(url)
-
-
-# In[ ]:
-
-
-
-
-
-# In[5]:
 
 
 def get_url(url_token):
@@ -70,6 +57,8 @@ def get_following(url_token, depth, max_depth):
     if depth > max_depth:
         return
     
+    global vis
+    vis['url_token'] = 1
     url = get_url(url_token)
     sess = requests.Session()
     sess.headers = myheaders
@@ -77,59 +66,42 @@ def get_following(url_token, depth, max_depth):
     
     limit = 20
     offset = 0
-    
-    while not response.json()['paging']['is_end']:
-        following_num = response.json()['paging']['totals']
-        offset += 20
-        response = sess.get(get_url(url_token), params = {'limit': 20, 'offset': offset })
+    response.encoding='unicode'
+    rejson = response.json()
+    while True:
+        with open(start_url_token+'.txt', 'a') as f:
+                    f.write(response.text)
+        following_num = rejson['paging']['totals']
         
-        for elem in response.json()['data']:
+        
+        for elem in rejson['data']:
             new_token = elem['url_token']
-            new_url = get_url(elem['url_token'])
+            new_url = get_url(new_token)
             new_sess = requests.Session()
+            print(url_token, '   ------->   ', new_token, '  第', depth, '级')
+            print('用户：'+ elem['name'] + '  性别：' + str((lambda g: '男' if g else '女')(elem['gender'])) + '  简介：'+ elem['headline'])
+            if new_token in vis:
+                continue
             new_response = new_sess.get(new_url, headers = myheaders)
             try:
-                print(elem['url_token'], new_response.json()['paging'])
                 get_following(new_token, depth+1, max_depth)
-                time.sleep(2)
+                
             except:
                 pass
+        offset += 20
+        response = sess.get(get_url(url_token), params = {'limit': 20, 'offset': offset })
+        rejson = response.json()
+        
+        response.encoding='utf-8'
+        if rejson['paging']['is_end']:
+            break
+
+    vis['url_token'] = 2
     
 
 
-# In[6]:
-
-
-get_url('1234')
-get_following('howard-h', 1, 1)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+if __name__ == '__main__':
+    with open(start_url_token+'.txt', 'w') as f:
+        pass
+    get_following(start_url_token, 1, max_depth)
 
